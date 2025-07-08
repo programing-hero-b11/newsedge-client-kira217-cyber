@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import {
   FaChartPie,
   FaUsers,
@@ -45,7 +45,7 @@ const Sidebar = ({ handleLogout, handleThemeToggle, theme }) => {
     <aside className="w-64 bg-base-200 min-h-screen flex flex-col justify-between shadow-lg">
       {/* Top Title and Theme Toggle */}
       <div className="p-4 border-b border-gray-300 dark:border-gray-600 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-[#4C3AFF]">NewsEdge</h2>
+        <Link to='/'><h2 className="text-xl font-bold text-[#4C3AFF]">NewsEdge</h2></Link>
         <button onClick={handleThemeToggle} className="text-xl">
           {theme === "light" ? <FaMoon /> : <FaSun />}
         </button>

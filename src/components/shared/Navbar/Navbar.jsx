@@ -7,11 +7,13 @@ import useAuth from "../../../hooks/useAuth";
 import useRole from "../../../hooks/useRole";
 import Loading from "../Loading/Loading";
 import { toast } from "react-toastify";
+import useStatus from "../../../hooks/useStatus";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
   const [role, isRoleLoading] = useRole();
-  const navigate = useNavigate()
+  const [userStatus, isStatusLoading] = useStatus();
+  const navigate = useNavigate();
   console.log(user);
 
   const [theme, setTheme] = useState("light");
@@ -26,8 +28,8 @@ const Navbar = () => {
     logOut()
       .then((res) => {
         console.log("User Logged Out", res);
-        toast.success("Logout Successfully")
-        navigate('/')
+        toast.success("Logout Successfully");
+        navigate("/");
       })
       .catch((err) => {
         console.log(err);
@@ -36,19 +38,23 @@ const Navbar = () => {
 
   const navLinks = (
     <>
+      <li>
+        <NavLink to="/">Home</NavLink>
+      </li>
       <>
-        <li>
-          <NavLink to="/">Home</NavLink>
-        </li>
-        <li>
-          <NavLink to="/add-article">Add Articles</NavLink>
-        </li>
-        <li>
-          <NavLink to="/subscription">Subscription</NavLink>
-        </li>
-        <li>
-          <NavLink to="/my-articles">My Articles</NavLink>
-        </li>
+        {user && (
+          <>
+            <li>
+              <NavLink to="/add-article">Add Articles</NavLink>
+            </li>
+            <li>
+              <NavLink to="/subscription">Subscription</NavLink>
+            </li>
+            <li>
+              <NavLink to="/my-articles">My Articles</NavLink>
+            </li>
+          </>
+        )}
       </>
       {role === "admin" && (
         <>
@@ -57,9 +63,8 @@ const Navbar = () => {
           </li>
         </>
       )}
-      {role === "premiumUser" && (
+      {(userStatus === "premium" || role === "admin") && (
         <>
-          
           <li>
             <NavLink to="/premium-articles">Premium Articles</NavLink>
           </li>
@@ -79,6 +84,7 @@ const Navbar = () => {
   const drawerBgClass =
     theme === "light" ? "bg-white " : "bg-gray-900 text-white";
   if (isRoleLoading) return <Loading></Loading>;
+  if (isStatusLoading) return <Loading></Loading>;
   return (
     <div className="sticky top-0 z-50">
       <div className="drawer drawer-end">
