@@ -13,9 +13,12 @@ import AdminRoutes from "../routes/AdminRoutes";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import Profile from "../pages/Profile/Profile";
-
-
-
+import PremiumRoutes from "../routes/PremiumRoutes";
+import Statistics from "../pages/AdminPages/Statistics/Statistics";
+import ManageUsers from "../pages/AdminPages/ManageUsers/ManageUsers";
+import ManageArticles from "../pages/AdminPages/ManageArticles/ManageArticles";
+import AddPublisher from "../pages/AdminPages/AddPublisher/AddPublisher";
+import DashboardProfile from "../pages/AdminPages/DashboardProfile/DashboardProfile";
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +27,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: Home,
+        element:<Home></Home>
       },
       {
         path: "add-article",
@@ -62,25 +65,27 @@ export const router = createBrowserRouter([
         path: "premium-articles",
         element: (
           <PrivetRoutes>
-            <PremiumArticles></PremiumArticles>
+            <PremiumRoutes>
+              <PremiumArticles></PremiumArticles>
+            </PremiumRoutes>
           </PrivetRoutes>
         ),
       },
       {
-        path:"profile",
-        element:<PrivetRoutes>
-          <Profile></Profile>
-        </PrivetRoutes>
-      }
+        path: "profile",
+        element: (
+          <PrivetRoutes>
+            <Profile></Profile>
+          </PrivetRoutes>
+        ),
+      },
     ],
   },
   {
-    path:"login",
-    element:<Login></Login>
+    path: "login",
+    element: <Login></Login>,
   },
-  {path:"register",
-    element:<Register></Register>
-  },
+  { path: "register", element: <Register></Register> },
   {
     path: "/dashboard",
     element: (
@@ -90,5 +95,57 @@ export const router = createBrowserRouter([
         </AdminRoutes>
       </PrivetRoutes>
     ),
+    children: [
+      {
+        index: true,
+        element: (
+          <PrivetRoutes>
+            <AdminRoutes>
+              <Statistics></Statistics>
+            </AdminRoutes>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "manage-users",
+        element: (
+          <PrivetRoutes>
+            <AdminRoutes>
+              <ManageUsers></ManageUsers>
+            </AdminRoutes>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "manage-articles",
+        element: (
+          <PrivetRoutes>
+            <AdminRoutes>
+              <ManageArticles></ManageArticles>
+            </AdminRoutes>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "add-publisher",
+        element: (
+          <PrivetRoutes>
+            <AdminRoutes>
+              <AddPublisher></AddPublisher>
+            </AdminRoutes>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <PrivetRoutes>
+            <AdminRoutes>
+             <DashboardProfile></DashboardProfile>
+            </AdminRoutes>
+          </PrivetRoutes>
+        ),
+      },
+    ],
   },
 ]);

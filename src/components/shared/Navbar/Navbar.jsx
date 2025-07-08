@@ -1,17 +1,18 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { MdOutlineLogout } from "react-icons/md";
 import "./Navbar.css";
+import useAuth from "../../../hooks/useAuth";
+import useRole from "../../../hooks/useRole";
+import Loading from "../Loading/Loading";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
-  // Fake user data
-  const user = {
-    email: "user@example.com",
-    displayName: "News User",
-    photoURL: "https://i.ibb.co/5xF0PRX/user.png",
-    role: "admin", // or "admin"
-  };
+  const { user, logOut } = useAuth();
+  const [role, isRoleLoading] = useRole();
+  const navigate = useNavigate()
+  console.log(user);
 
   const [theme, setTheme] = useState("light");
 
@@ -22,55 +23,43 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    console.log("User Logged Out");
-    // Add your logout logic here
+    logOut()
+      .then((res) => {
+        console.log("User Logged Out", res);
+        toast.success("Logout Successfully")
+        navigate('/')
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const navLinks = (
     <>
-      {user?.role === "user" && (
+      <>
+        <li>
+          <NavLink to="/">Home</NavLink>
+        </li>
+        <li>
+          <NavLink to="/add-article">Add Articles</NavLink>
+        </li>
+        <li>
+          <NavLink to="/subscription">Subscription</NavLink>
+        </li>
+        <li>
+          <NavLink to="/my-articles">My Articles</NavLink>
+        </li>
+      </>
+      {role === "admin" && (
         <>
-          <li>
-            <NavLink to="/">Home</NavLink>
-          </li>
-          <li>
-            <NavLink to="/add-article">Add Articles</NavLink>
-          </li>
-          <li>
-            <NavLink to="/subscription">Subscription</NavLink>
-          </li>
-          <li>
-            <NavLink to="/my-articles">My Articles</NavLink>
-          </li>
-        </>
-      )}
-      {user?.role === "admin" && (
-        <>
-          <li>
-            <NavLink to="/">Home</NavLink>
-          </li>
           <li>
             <NavLink to="/dashboard">Dashboard</NavLink>
           </li>
-          <li>
-            <NavLink to="/all-articles">All Articles</NavLink>
-          </li>
         </>
       )}
-      {user?.role === "premiumUser" && (
+      {role === "premiumUser" && (
         <>
-          <li>
-            <NavLink to="/">Home</NavLink>
-          </li>
-          <li>
-            <NavLink to="/add-article">Add Articles</NavLink>
-          </li>
-          <li>
-            <NavLink to="/subscription">Subscription</NavLink>
-          </li>
-          <li>
-            <NavLink to="/my-articles">My Articles</NavLink>
-          </li>
+          
           <li>
             <NavLink to="/premium-articles">Premium Articles</NavLink>
           </li>
@@ -89,7 +78,7 @@ const Navbar = () => {
 
   const drawerBgClass =
     theme === "light" ? "bg-white " : "bg-gray-900 text-white";
-
+  if (isRoleLoading) return <Loading></Loading>;
   return (
     <div className="sticky top-0 z-50">
       <div className="drawer drawer-end">
