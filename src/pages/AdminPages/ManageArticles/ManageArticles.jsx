@@ -69,7 +69,7 @@ const ManageArticles = () => {
           <tbody>
             {articles.map((article) => (
               <tr key={article._id}>
-                <td>{article.title}</td>
+                <td className="font-bold">{article.title}</td>
                 <td>{article.author.name}</td>
                 <td>{article.author.email}</td>
                 <td>
@@ -130,7 +130,7 @@ const ManageArticles = () => {
             key={article._id}
             className="card shadow bg-base-200 p-4 space-y-2 rounded-xl"
           >
-            <h3 className="text-lg font-semibold">{article.title}</h3>
+            <h3 className="text-lg font-bold">{article.title}</h3>
             <div className="flex items-center gap-3">
               <img
                 src={article.author.image}
@@ -159,7 +159,7 @@ const ManageArticles = () => {
                 <>
                   <button
                     onClick={() => handleApprove(article._id)}
-                    className="btn btn-xs btn-success"
+                    className="btn btn-sm btn-success"
                   >
                     Approve
                   </button>
@@ -168,14 +168,14 @@ const ManageArticles = () => {
                       setSelectedId(article._id);
                       document.getElementById("decline_modal").showModal();
                     }}
-                    className="btn btn-xs btn-error"
+                    className="btn btn-sm btn-error"
                   >
                     Decline
                   </button>
                 </>
               )}
               <Link to={`/article-details/${article._id}`}>
-                <button className="btn btn-xs btn-outline btn-warning">
+                <button className="btn btn-sm btn-outline btn-warning">
                   Details
                 </button>
               </Link>
@@ -183,7 +183,7 @@ const ManageArticles = () => {
                 article.status === "published" && (
                   <button
                     onClick={() => handleMakePremium(article._id)}
-                    className="btn btn-xs btn-accent"
+                    className="btn btn-sm btn-accent"
                   >
                     Make Premium
                   </button>

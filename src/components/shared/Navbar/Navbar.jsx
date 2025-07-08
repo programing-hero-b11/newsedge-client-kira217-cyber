@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import useStatus from "../../../hooks/useStatus";
 
 const Navbar = () => {
-  const { user, logOut,setThemeController } = useAuth();
+  const { user, logOut, setThemeController } = useAuth();
   const [role, isRoleLoading] = useRole();
   const [userStatus, isStatusLoading] = useStatus();
   const navigate = useNavigate();
@@ -21,10 +21,9 @@ const Navbar = () => {
   const handleThemeToggle = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    setThemeController(newTheme)
+    setThemeController(newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
   };
-
 
   const handleLogout = () => {
     logOut()
@@ -46,6 +45,9 @@ const Navbar = () => {
       <>
         {user && (
           <>
+            <li>
+              <NavLink to="/all-articles">All Articles</NavLink>
+            </li>
             <li>
               <NavLink to="/add-article">Add Articles</NavLink>
             </li>
