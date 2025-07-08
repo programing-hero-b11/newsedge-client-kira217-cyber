@@ -18,6 +18,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const [loading, setLoading] = useState(true);
+  const [themeController,setThemeController] = useState("")
   // Register User
   const signUp = (email, password) => {
     setLoading(true);
@@ -64,6 +65,8 @@ const AuthProvider = ({ children }) => {
     updateUser,
     setUser,
     user,
+    themeController,
+    setThemeController
   };
   console.log(user)
 

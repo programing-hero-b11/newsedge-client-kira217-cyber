@@ -19,6 +19,8 @@ import ManageUsers from "../pages/AdminPages/ManageUsers/ManageUsers";
 import ManageArticles from "../pages/AdminPages/ManageArticles/ManageArticles";
 import AddPublisher from "../pages/AdminPages/AddPublisher/AddPublisher";
 import DashboardProfile from "../pages/AdminPages/DashboardProfile/DashboardProfile";
+import UpdateArticle from "../pages/UpdateArticle/UpdateArticle";
+import ArticleDetails from "../pages/ArticleDetails/ArticleDetails";
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +29,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element:<Home></Home>
+        element: <Home></Home>,
       },
       {
         path: "add-article",
@@ -76,6 +78,22 @@ export const router = createBrowserRouter([
         element: (
           <PrivetRoutes>
             <Profile></Profile>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "update-article/:id",
+        element: (
+          <PrivetRoutes>
+            <UpdateArticle></UpdateArticle>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "article-details/:id",
+        element: (
+          <PrivetRoutes>
+            <ArticleDetails></ArticleDetails>
           </PrivetRoutes>
         ),
       },
@@ -141,7 +159,7 @@ export const router = createBrowserRouter([
         element: (
           <PrivetRoutes>
             <AdminRoutes>
-             <DashboardProfile></DashboardProfile>
+              <DashboardProfile></DashboardProfile>
             </AdminRoutes>
           </PrivetRoutes>
         ),
