@@ -1,11 +1,225 @@
-import React from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { Link } from "react-router";
 
 const ManageArticles = () => {
-    return (
-        <div>
-            AllArticlesAdmin
+  const axiosSecure = useAxiosSecure();
+  const [declineReason, setDeclineReason] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
+
+  const { data: articles = [], refetch } = useQuery({
+    queryKey: ["manageArticles"],
+    queryFn: async () => {
+      const { data } = await axiosSecure("/articles");
+      return data;
+    },
+  });
+
+  const handleApprove = async (id) => {
+    const res = await axiosSecure.patch(`/articles/approve/${id}`);
+    if (res.data.modifiedCount > 0) {
+      toast.success("Article Approved!");
+      refetch();
+    }
+  };
+
+  const handleDecline = async () => {
+    if (!declineReason) return toast.error("Reason is required!");
+    const res = await axiosSecure.patch(`/articles/decline/${selectedId}`, {
+      reason: declineReason,
+    });
+    if (res.data.modifiedCount > 0) {
+      toast.success("Article Declined!");
+      setSelectedId(null);
+      setDeclineReason("");
+      document.getElementById("decline_modal").close();
+      refetch();
+    }
+  };
+
+  const handleMakePremium = async (id) => {
+    const res = await axiosSecure.patch(`/articles/premium/${id}`);
+    if (res.data.modifiedCount > 0) {
+      toast.success("Marked as Premium!");
+      refetch();
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Manage Articles</h2>
+
+      {/* 🖥️ Table for Desktop/Tablet */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Email</th>
+              <th>Photo</th>
+              <th>Posted</th>
+              <th>Publisher</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {articles.map((article) => (
+              <tr key={article._id}>
+                <td>{article.title}</td>
+                <td>{article.author.name}</td>
+                <td>{article.author.email}</td>
+                <td>
+                  <img
+                    src={article.author.image}
+                    className="w-10 h-10 rounded-full"
+                    alt="author"
+                  />
+                </td>
+                <td>{new Date(article.createdAt).toLocaleDateString()}</td>
+                <td>{article.publisher}</td>
+                <td className="capitalize">{article.status}</td>
+                <td className="flex flex-wrap gap-2">
+                  {article.status === "pending" && (
+                    <>
+                      <button
+                        onClick={() => handleApprove(article._id)}
+                        className="btn btn-xs btn-success"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedId(article._id);
+                          document.getElementById("decline_modal").showModal();
+                        }}
+                        className="btn btn-xs btn-error"
+                      >
+                        Decline
+                      </button>
+                    </>
+                  )}
+                  <Link to={`/article-details/${article._id}`}>
+                    <button className="btn btn-xs btn-outline btn-warning">
+                      Details
+                    </button>
+                  </Link>
+                  {article.articleType !== "premium" &&
+                    article.status === "published" && (
+                      <button
+                        onClick={() => handleMakePremium(article._id)}
+                        className="btn btn-xs btn-accent"
+                      >
+                        Make Premium
+                      </button>
+                    )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 📱 Card for Mobile */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {articles.map((article) => (
+          <div
+            key={article._id}
+            className="card shadow bg-base-200 p-4 space-y-2 rounded-xl"
+          >
+            <h3 className="text-lg font-semibold">{article.title}</h3>
+            <div className="flex items-center gap-3">
+              <img
+                src={article.author.image}
+                alt="author"
+                className="w-10 h-10 rounded-full"
+              />
+              <div>
+                <p className="text-sm">{article.author.name}</p>
+                <p className="text-xs text-gray-500">{article.author.email}</p>
+              </div>
+            </div>
+            <p>
+              <strong>Posted:</strong>{" "}
+              {new Date(article.createdAt).toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Publisher:</strong> {article.publisher}
+            </p>
+            <p>
+              <strong>Status:</strong>{" "}
+              <span className="capitalize">{article.status}</span>
+            </p>
+
+            <div className="flex flex-wrap gap-2 mt-2">
+              {article.status === "pending" && (
+                <>
+                  <button
+                    onClick={() => handleApprove(article._id)}
+                    className="btn btn-xs btn-success"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedId(article._id);
+                      document.getElementById("decline_modal").showModal();
+                    }}
+                    className="btn btn-xs btn-error"
+                  >
+                    Decline
+                  </button>
+                </>
+              )}
+              <Link to={`/article-details/${article._id}`}>
+                <button className="btn btn-xs btn-outline btn-warning">
+                  Details
+                </button>
+              </Link>
+              {article.articleType !== "premium" &&
+                article.status === "published" && (
+                  <button
+                    onClick={() => handleMakePremium(article._id)}
+                    className="btn btn-xs btn-accent"
+                  >
+                    Make Premium
+                  </button>
+                )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Decline Modal */}
+      <dialog id="decline_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Decline Reason</h3>
+          <textarea
+            className="textarea textarea-bordered w-full mt-2"
+            rows={4}
+            value={declineReason}
+            onChange={(e) => setDeclineReason(e.target.value)}
+            placeholder="Write reason here..."
+          ></textarea>
+          <div className="modal-action">
+            <form method="dialog">
+              <button
+                type="button"
+                onClick={handleDecline}
+                className="btn btn-error btn-sm"
+              >
+                Submit Reason
+              </button>
+              <button className="btn btn-sm ml-2">Close</button>
+            </form>
+          </div>
         </div>
-    );
+      </dialog>
+    </div>
+  );
 };
 
 export default ManageArticles;

@@ -70,7 +70,7 @@ const MyArticles = () => {
                       </button>
                     </div>
                   ) : (
-                    <span className={`badge ${article.status === "approved" ? "badge-success" : "badge-warning"}`}>
+                    <span className={`badge ${article.status === "published" ? "badge-success" : "badge-warning"}`}>
                       {article.status}
                     </span>
                   )}
@@ -102,7 +102,7 @@ const MyArticles = () => {
           <div key={article._id} className="card bg-base-200 p-4 shadow-md space-y-4">
             <h3 className="text-lg font-bold">{index + 1}. {article.title}</h3>
             <p className="font-bold">Status: 
-              <span className={`badge ${article.status === "approved" ? "badge-success" : article.status === "declined" ? "badge-error" : "badge-warning"}`}>
+              <span className={`badge ${article.status === "published" ? "badge-success" : article.status === "declined" ? "badge-error" : "badge-warning"}`}>
                 {article.status}
               </span>
               {article.status === "declined" && (
