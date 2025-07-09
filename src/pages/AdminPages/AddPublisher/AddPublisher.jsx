@@ -2,8 +2,11 @@ import { useForm } from "react-hook-form";
 import { imageUpload } from "../../../utils/utils";
 import { axiosSecure } from "../../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
 const AddPublisher = () => {
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [imageUploadError, setImageUploadError] = useState(false);
   const {
     register,
     handleSubmit,
@@ -12,15 +15,10 @@ const AddPublisher = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    const imageFile = data.logo[0];
-
-    const image = await imageUpload(imageFile);
-    console.log(image)
-
     try {
       const publisherInfo = {
         name: data.name,
-        logo: image,
+        logo: uploadedImage,
       };
 
       // Save to DB
@@ -30,6 +28,24 @@ const AddPublisher = () => {
     } catch (error) {
       console.error("Image upload or DB save failed:", error);
       toast.error("Something went wrong!");
+    }
+    reset(); // reset react-hook-form fields
+    setUploadedImage(null); // reset uploaded image
+    setImageUploadError("");
+  };
+
+  const handleImageUpload = async (e) => {
+    e.preventDefault();
+    const image = e.target.files[0];
+    console.log(image);
+    try {
+      // image url response from imgbb
+      const imageUrl = await imageUpload(image);
+      console.log(imageUrl);
+      setUploadedImage(imageUrl);
+    } catch (err) {
+      setImageUploadError("Image Upload Failed");
+      console.log(err);
     }
   };
 
@@ -61,17 +77,31 @@ const AddPublisher = () => {
 
         {/* Publisher Logo */}
         <div>
-          <label className="label">
-            <span className="label-text font-medium">Publisher Logo</span>
+          <label className="cursor-pointer flex items-center gap-2">
+            <span className="btn btn-primary w-full btn-outline">
+              {uploadedImage ? "Change Image" : "Select Photo"}
+            </span>
+            <input
+              type="file"
+              onChange={handleImageUpload}
+              accept="image/*"
+              className="hidden"
+            />
           </label>
-          <input
-            type="file"
-            {...register("logo", { required: "Logo is required" })}
-            accept="image/*"
-            className="file-input file-input-bordered w-full"
-          />
-          {errors.logo && (
-            <p className="text-red-500 text-sm mt-1">{errors.logo.message}</p>
+
+          {uploadedImage && (
+            <div className="w-full flex justify-center mt-5">
+              <img
+                src={uploadedImage}
+                alt="Uploaded Preview"
+                className="w-48 h-48 object-cover rounded border"
+              />
+            </div>
+          )}
+          {imageUploadError && (
+            <p className="text-red-500 text-sm text-center">
+              {imageUploadError}
+            </p>
           )}
         </div>
 

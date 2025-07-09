@@ -1,19 +1,25 @@
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { imageUpload } from "../../utils/utils";
 import { toast } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AddArticle = () => {
   const { user, themeController } = useAuth();
   const { register, handleSubmit, control, reset } = useForm();
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
+
   const [uploading, setUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(false);
+  const [loadingAccess, setLoadingAccess] = useState(true);
+  const [isAllowed, setIsAllowed] = useState(false);
 
   const { data: publishers = [] } = useQuery({
     queryKey: ["publishers"],
@@ -23,12 +29,66 @@ const AddArticle = () => {
     },
   });
 
+  // Check permission before rendering form
+  useEffect(() => {
+    const checkLimit = async () => {
+      if (user?.email) {
+        try {
+          const res = await axiosSecure.get(
+            `/articles/count?email=${user.email}`
+          );
+          const count = res.data.count;
+
+          const userRes = await axiosSecure.get(
+            `/user/userStatus/${user.email}`
+          );
+          const userInfo = userRes.data;
+
+          if (userInfo.userStatus === "normal" && count >= 1) {
+            setIsAllowed(false);
+            Swal.fire({
+              icon: "info",
+              title: "Premium Required",
+              text: "Normal users can only post 1 article. Please upgrade to premium.",
+              confirmButtonText: "Go to Subscription",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigate("/subscription");
+              }
+            });
+          } else {
+            setIsAllowed(true);
+          }
+        } catch (err) {
+          console.error("Limit check failed:", err);
+          setIsAllowed(false);
+        } finally {
+          setLoadingAccess(false);
+        }
+      }
+    };
+    checkLimit();
+  }, [user, axiosSecure, navigate]);
+
+  const tagsOptions = [
+    { value: "politics", label: "Politics" },
+    { value: "sports", label: "Sports" },
+    { value: "technology", label: "Technology" },
+    { value: "entertainment", label: "Entertainment" },
+    { value: "health", label: "Health" },
+    { value: "crime", label: "Crime" },
+    { value: "business", label: "Business" },
+    { value: "education", label: "Education" },
+    { value: "environment", label: "Environment" },
+    { value: "travel", label: "Travel" },
+    { value: "weather", label: "Weather" },
+  ];
+
   const customStyles = (theme) => ({
     control: (provided) => ({
       ...provided,
       backgroundColor: theme === "dark" ? "#1E232B" : "white",
       borderColor: theme === "dark" ? "#555" : "#ccc",
-      color: theme === "dark" ? "white" : "black",
     }),
     singleValue: (provided) => ({
       ...provided,
@@ -49,80 +109,57 @@ const AddArticle = () => {
         : "white",
       color: theme === "dark" ? "white" : "black",
     }),
-    multiValue: (provided) => ({
-      ...provided,
-      backgroundColor: theme === "dark" ? "#444" : "#ddd",
-      color: theme === "dark" ? "white" : "black",
-    }),
-    multiValueLabel: (provided) => ({
-      ...provided,
-      color: theme === "dark" ? "white" : "black",
-    }),
-    input: (provided) => ({
-      ...provided,
-      color: theme === "dark" ? "white" : "black",
-    }),
   });
 
-  const tagsOptions = [
-    { value: "politics", label: "Politics" },
-    { value: "sports", label: "Sports" },
-    { value: "technology", label: "Technology" },
-    { value: "entertainment", label: "Entertainment" },
-    { value: "health", label: "Health" },
-    { value: "crime", label: "Crime" },
-    { value: "business", label: "Business" },
-    { value: "education", label: "Education" },
-    { value: "environment", label: "Environment" },
-    { value: "travel", label: "Travel" },
-    { value: "weather", label: "Weather" },
-  ];
-
   const onSubmit = async (data) => {
+    if (!isAllowed) return;
+
     setUploading(true);
+    try {
+      const articleData = {
+        title: data.title,
+        image: uploadedImage,
+        description: data.description,
+        publisher: data.publisher,
+        tags: data.tags.map((tag) => tag.value),
+        author: {
+          name: user.displayName,
+          email: user.email,
+          image: user.photoURL || "",
+        },
+        reason: "",
+      };
 
-    // Upload image to imgbb
-
-    const articleData = {
-      title: data.title,
-      image: uploadedImage,
-      description: data.description,
-      publisher: data.publisher,
-      tags: data.tags.map((tag) => tag.value),
-      author: {
-        name: user.displayName, //
-        email: user.email,
-        image: user.photoURL || "",
-      },
-      reason: "",
-    };
-    console.log(articleData);
-
-    const res = await axiosSecure.post("/articles", articleData);
-    if (res.data.insertedId) {
-      toast.success("Article submitted for review!");
-      reset();
+      const res = await axiosSecure.post("/articles", articleData);
+      if (res.data.insertedId) {
+        toast.success("Article submitted for review!");
+        navigate('/my-articles')
+        reset();
+        setUploadedImage(null);
+      }
+    } catch (err) {
+      toast.error("Failed to submit article.");
+    } finally {
+      setUploading(false);
     }
-    reset(); // reset react-hook-form fields
-    setUploadedImage(null); // reset uploaded image
-    setImageUploadError("");
-    setUploading(false);
   };
 
   const handleImageUpload = async (e) => {
-    e.preventDefault();
     const image = e.target.files[0];
-    console.log(image);
     try {
-      // image url response from imgbb
       const imageUrl = await imageUpload(image);
-      console.log(imageUrl);
       setUploadedImage(imageUrl);
+      setImageUploadError(false);
     } catch (err) {
-      setImageUploadError("Image Upload Failed");
       console.log(err);
+      setImageUploadError(true);
     }
   };
+
+  // 🔄 Wait for access check
+  if (loadingAccess)
+    return <div className="text-center p-10">Checking permissions...</div>;
+  if (!isAllowed) return null;
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -159,7 +196,9 @@ const AddArticle = () => {
           </div>
         )}
         {imageUploadError && (
-          <p className="text-red-500 text-sm text-center">{imageUploadError}</p>
+          <p className="text-red-500 text-sm text-center">
+            Image Upload Failed
+          </p>
         )}
 
         <select
@@ -177,7 +216,7 @@ const AddArticle = () => {
         <Controller
           name="tags"
           control={control}
-          defaultValue={[]} // important for proper reset
+          defaultValue={[]}
           rules={{ required: true }}
           render={({ field }) => (
             <Select
