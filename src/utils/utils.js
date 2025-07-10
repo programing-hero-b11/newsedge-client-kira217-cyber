@@ -14,11 +14,35 @@ export const imageUpload = async (imageData) => {
 };
 
 // // save or update user in db
-export const saveUserInDb = async user => {
+export const saveUserInDb = async (user) => {
   const { data } = await axios.post(
     `${import.meta.env.VITE_API_URL}/user`,
     user
-  )
+  );
 
-  console.log(data)
-}
+  console.log(data);
+};
+
+//  Check if premium subscription is expired
+
+export const isPremiumExpired = (premiumTaken, subscriptionPeriod) => {
+  if (!premiumTaken || !subscriptionPeriod) return true;
+  const expireTime =
+    new Date(premiumTaken).getTime() + Number(subscriptionPeriod);
+  return new Date().getTime() > expireTime;
+};
+
+export const handlePremiumExpiry = async (user, axiosSecure, redirect) => {
+  if (!user?.email) return;
+
+  try {
+    const res = await axiosSecure.get(`/user/check-expiry?email=${user.email}`);
+
+    // যদি expired হয় তাহলে রিডাইরেক্ট করো
+    if (res.data?.expired) {
+      redirect("/subscription"); // Automatically navigate
+    }
+  } catch (err) {
+    console.error("Premium check failed", err);
+  }
+};

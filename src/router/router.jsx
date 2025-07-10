@@ -21,6 +21,7 @@ import AddPublisher from "../pages/AdminPages/AddPublisher/AddPublisher";
 import DashboardProfile from "../pages/AdminPages/DashboardProfile/DashboardProfile";
 import UpdateArticle from "../pages/UpdateArticle/UpdateArticle";
 import ArticleDetails from "../pages/ArticleDetails/ArticleDetails";
+import Payment from "../components/PaymentGetway/Payment";
 
 export const router = createBrowserRouter([
   {
@@ -60,6 +61,14 @@ export const router = createBrowserRouter([
         element: (
           <PrivetRoutes>
             <MyArticles></MyArticles>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "payment",
+        element: (
+          <PrivetRoutes>
+            <Payment></Payment>
           </PrivetRoutes>
         ),
       },

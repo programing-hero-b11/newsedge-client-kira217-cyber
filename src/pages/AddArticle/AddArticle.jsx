@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { imageUpload } from "../../utils/utils";
+import { handlePremiumExpiry, imageUpload } from "../../utils/utils";
 import { toast } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
@@ -10,6 +10,8 @@ import { useNavigate } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AddArticle = () => {
+ 
+
   const { user, themeController } = useAuth();
   const { register, handleSubmit, control, reset } = useForm();
   const axiosSecure = useAxiosSecure();
@@ -28,6 +30,7 @@ const AddArticle = () => {
       return data;
     },
   });
+   
 
   // Check permission before rendering form
   useEffect(() => {
@@ -133,7 +136,7 @@ const AddArticle = () => {
       const res = await axiosSecure.post("/articles", articleData);
       if (res.data.insertedId) {
         toast.success("Article submitted for review!");
-        navigate('/my-articles')
+        navigate("/my-articles");
         reset();
         setUploadedImage(null);
       }

@@ -18,7 +18,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const [loading, setLoading] = useState(true);
-  const [themeController,setThemeController] = useState("")
+  const [themeController, setThemeController] = useState("");
   // Register User
   const signUp = (email, password) => {
     setLoading(true);
@@ -45,6 +45,19 @@ const AuthProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  // 🔄 Refetch latest user data from DB
+  const refetchUser = async (email) => {
+    if (!email) return;
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/user/${email}`
+      );
+      setUser((prev) => ({ ...prev, ...data })); // merge auth user and DB data
+    } catch (err) {
+      console.error("Failed to refetch user info:", err);
+    }
+  };
+
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -66,9 +79,10 @@ const AuthProvider = ({ children }) => {
     setUser,
     user,
     themeController,
-    setThemeController
+    setThemeController,
+    refetchUser
   };
-  console.log(user)
+  console.log(user);
 
   return <AuthContext value={userInfo}>{children}</AuthContext>;
 };
