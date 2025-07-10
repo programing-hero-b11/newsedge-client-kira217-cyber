@@ -12,7 +12,7 @@ const ManageArticles = () => {
   const { data: articles = [], refetch } = useQuery({
     queryKey: ["manageArticles"],
     queryFn: async () => {
-      const { data } = await axiosSecure("/articles");
+      const { data } = await axiosSecure("/all-articles");
       return data;
     },
   });

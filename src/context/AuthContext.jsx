@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { createContext, useEffect, useState } from "react";
+import axios from "axios";
 
 export const AuthContext = createContext(null);
 
@@ -45,18 +46,7 @@ const AuthProvider = ({ children }) => {
     return signOut(auth);
   };
 
-  // 🔄 Refetch latest user data from DB
-  const refetchUser = async (email) => {
-    if (!email) return;
-    try {
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/user/${email}`
-      );
-      setUser((prev) => ({ ...prev, ...data })); // merge auth user and DB data
-    } catch (err) {
-      console.error("Failed to refetch user info:", err);
-    }
-  };
+
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -80,7 +70,6 @@ const AuthProvider = ({ children }) => {
     user,
     themeController,
     setThemeController,
-    refetchUser
   };
   console.log(user);
 

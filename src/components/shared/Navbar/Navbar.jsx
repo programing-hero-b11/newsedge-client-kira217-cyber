@@ -36,6 +36,7 @@ const Navbar = () => {
         console.log(err);
       });
   };
+  if (isStatusLoading) return <Loading></Loading>;
 
   const navLinks = (
     <>
@@ -87,8 +88,9 @@ const Navbar = () => {
 
   const drawerBgClass =
     theme === "light" ? "bg-white " : "bg-gray-900 text-white";
+
   if (isRoleLoading) return <Loading></Loading>;
-  if (isStatusLoading) return <Loading></Loading>;
+
   return (
     <div className="sticky top-0 z-50">
       <div className="drawer drawer-end">

@@ -5,6 +5,7 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router";
 import "./CheckoutForm.css";
+import useStatus from "../../hooks/useStatus";
 
 const CheckoutForm = ({ selected }) => {
   const stripe = useStripe();
@@ -12,6 +13,7 @@ const CheckoutForm = ({ selected }) => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [ refetch ] = useStatus();
 
   const [clientSecret, setClientSecret] = useState("");
   const [isDark, setIsDark] = useState(false);
@@ -94,7 +96,9 @@ const CheckoutForm = ({ selected }) => {
       const res = await axiosSecure.post("/payments", paymentInfo);
       if (res.data?.updateUser?.modifiedCount > 0) {
         toast.success("Payment Successful! You are now a Premium user.");
+
         navigate("/premium-articles");
+        refetch();
       }
     }
   };
