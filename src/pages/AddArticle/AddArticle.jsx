@@ -2,16 +2,17 @@ import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { handlePremiumExpiry, imageUpload } from "../../utils/utils";
+import { imageUpload } from "../../utils/utils";
 import { toast } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { FaFileImage } from "react-icons/fa";
+import Loading from "../../components/shared/Loading/Loading"
+import dayjs from "dayjs";
 
 const AddArticle = () => {
- 
-
   const { user, themeController } = useAuth();
   const { register, handleSubmit, control, reset } = useForm();
   const axiosSecure = useAxiosSecure();
@@ -22,7 +23,9 @@ const AddArticle = () => {
   const [imageUploadError, setImageUploadError] = useState(false);
   const [loadingAccess, setLoadingAccess] = useState(true);
   const [isAllowed, setIsAllowed] = useState(false);
+  const [accessInfo, setAccessInfo] = useState(null);
 
+  // ✅ Load publishers
   const { data: publishers = [] } = useQuery({
     queryKey: ["publishers"],
     queryFn: async () => {
@@ -30,49 +33,8 @@ const AddArticle = () => {
       return data;
     },
   });
-   
 
-  // Check permission before rendering form
-  useEffect(() => {
-    const checkLimit = async () => {
-      if (user?.email) {
-        try {
-          const res = await axiosSecure.get(
-            `/articles/count?email=${user.email}`
-          );
-          const count = res.data.count;
-
-          const userRes = await axiosSecure.get(
-            `/user/userStatus/${user.email}`
-          );
-          const userInfo = userRes.data;
-
-          if (userInfo.userStatus === "normal" && count >= 1) {
-            setIsAllowed(false);
-            Swal.fire({
-              icon: "info",
-              title: "Premium Required",
-              text: "Normal users can only post 1 article. Please upgrade to premium.",
-              confirmButtonText: "Go to Subscription",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                navigate("/subscription");
-              }
-            });
-          } else {
-            setIsAllowed(true);
-          }
-        } catch (err) {
-          console.error("Limit check failed:", err);
-          setIsAllowed(false);
-        } finally {
-          setLoadingAccess(false);
-        }
-      }
-    };
-    checkLimit();
-  }, [user, axiosSecure, navigate]);
-
+  // ✅ Tag options
   const tagsOptions = [
     { value: "politics", label: "Politics" },
     { value: "sports", label: "Sports" },
@@ -87,6 +49,7 @@ const AddArticle = () => {
     { value: "weather", label: "Weather" },
   ];
 
+  // ✅ React Select Theme Styles
   const customStyles = (theme) => ({
     control: (provided) => ({
       ...provided,
@@ -114,6 +77,41 @@ const AddArticle = () => {
     }),
   });
 
+  // ✅ Access check on mount
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (user?.email) {
+        try {
+          const res = await axiosSecure.get(`/user/check-access/${user.email}`);
+          const data = res.data;
+          setAccessInfo(data);
+
+          if (data.access) {
+            setIsAllowed(true);
+          } else {
+            Swal.fire({
+              icon: "info",
+              title: "Access Denied",
+              text: "Normal users add article only one time and Premium users with active subscription can add articles.",
+              confirmButtonText: "Go to Subscription",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigate("/subscription");
+              }
+            });
+          }
+        } catch (err) {
+          console.error("Access check failed:", err);
+        } finally {
+          setLoadingAccess(false);
+        }
+      }
+    };
+
+    checkAccess();
+  }, [user, axiosSecure, navigate]);
+
+  // ✅ Submit
   const onSubmit = async (data) => {
     if (!isAllowed) return;
 
@@ -125,6 +123,8 @@ const AddArticle = () => {
         description: data.description,
         publisher: data.publisher,
         tags: data.tags.map((tag) => tag.value),
+        articleType:
+          accessInfo?.userStatus === "premium" ? "premium" : "normal",
         author: {
           name: user.displayName,
           email: user.email,
@@ -147,6 +147,7 @@ const AddArticle = () => {
     }
   };
 
+  // ✅ Image Upload
   const handleImageUpload = async (e) => {
     const image = e.target.files[0];
     try {
@@ -159,9 +160,9 @@ const AddArticle = () => {
     }
   };
 
-  // 🔄 Wait for access check
+  // ✅ UI while checking permission
   if (loadingAccess)
-    return <div className="text-center p-10">Checking permissions...</div>;
+    return <Loading></Loading>
   if (!isAllowed) return null;
 
   return (
@@ -169,7 +170,18 @@ const AddArticle = () => {
       <h2 className="text-2xl font-bold mb-4 text-center">
         Submit New Article
       </h2>
+
+      {accessInfo?.userStatus === "premium" && (
+        <p className="text-green-500 text-sm text-center mb-4">
+          Subscription active until:{" "}
+          <span className="font-medium">
+            {dayjs(accessInfo.premiumExpiry).format("MMMM D, YYYY")}
+          </span>
+        </p>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Title */}
         <input
           type="text"
           {...register("title", { required: true })}
@@ -177,9 +189,18 @@ const AddArticle = () => {
           className="input input-bordered w-full"
         />
 
+        {/* Image Upload */}
         <label className="cursor-pointer flex items-center gap-2">
           <span className="btn btn-primary w-full btn-outline">
-            {uploadedImage ? "Change Image" : "Select Photo"}
+            {uploadedImage ? (
+              <span className="flex items-center gap-2">
+                <FaFileImage size={20} /> Change Image
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <FaFileImage /> Upload Image
+              </span>
+            )}
           </span>
           <input
             type="file"
@@ -198,12 +219,14 @@ const AddArticle = () => {
             />
           </div>
         )}
+
         {imageUploadError && (
           <p className="text-red-500 text-sm text-center">
             Image Upload Failed
           </p>
         )}
 
+        {/* Publisher Select */}
         <select
           {...register("publisher", { required: true })}
           className="select select-bordered w-full"
@@ -216,6 +239,7 @@ const AddArticle = () => {
           ))}
         </select>
 
+        {/* Tags */}
         <Controller
           name="tags"
           control={control}
@@ -232,12 +256,14 @@ const AddArticle = () => {
           )}
         />
 
+        {/* Description */}
         <textarea
           {...register("description", { required: true })}
           className="textarea textarea-bordered w-full h-60"
           placeholder="Article Description"
         ></textarea>
 
+        {/* Submit */}
         <button
           className="btn btn-primary btn-outline w-full"
           disabled={uploading}

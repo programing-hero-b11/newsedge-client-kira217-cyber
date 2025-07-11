@@ -1,7 +1,11 @@
+// AllArticles.jsx
 import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useNavigate } from "react-router";
 import useStatus from "../../hooks/useStatus";
+import { FaEye } from "react-icons/fa";
+import { motion } from "framer-motion";
+import moment from "moment";
 
 const AllArticles = () => {
   const axiosSecure = useAxiosSecure();
@@ -16,12 +20,10 @@ const AllArticles = () => {
     search: "",
   });
 
-  // Load Publishers
   useEffect(() => {
     axiosSecure.get("/publishers").then((res) => setPublishers(res.data));
   }, [axiosSecure]);
 
-  // Load Filtered Articles
   useEffect(() => {
     const { publisher, tags, search } = filters;
     const query = new URLSearchParams();
@@ -37,24 +39,22 @@ const AllArticles = () => {
     });
   }, [filters, axiosSecure]);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e) =>
     setFilters({ ...filters, search: e.target.value });
+
+  const handleDetailsClick = async (articleId) => {
+    try {
+      await axiosSecure.post(`/articles/increment-view/${articleId}`);
+      navigate(`/article-details/${articleId}`);
+    } catch (error) {
+      console.error("View count error:", error);
+    }
   };
 
   if (isStatusLoading)
     return <div className="text-center py-10">Loading...</div>;
 
-  // Filter articles based on userStatus:
-  // - Premium users see all
-  // - Normal users see all normal cards + premium cards (but with disabled buttons)
-  const displayedArticles =
-    userStatus === "premium"
-      ? articles
-      : articles
-          .filter((article) => article.articleType !== "premium")
-          .concat(
-            articles.filter((article) => article.articleType === "premium")
-          );
+  const displayedArticles = articles;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -62,7 +62,7 @@ const AllArticles = () => {
         All Articles
       </h1>
 
-      {/* Filter Section */}
+      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <input
           type="text"
@@ -104,77 +104,77 @@ const AllArticles = () => {
         </select>
       </div>
 
-      {/* Articles Section */}
+      {/* Articles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedArticles.length === 0 && (
-          <p className="text-center col-span-full text-gray-500">
-            No articles found.
-          </p>
-        )}
-
-        {displayedArticles.map((article) => {
+        {displayedArticles.map((article, index) => {
           const isPremium = article.articleType === "premium";
-
-          // For normal users, disable premium article button
-          // For premium users, enable all buttons
-          const isButtonDisabled = isPremium && userStatus !== "premium";
+          const isDisabled = isPremium && userStatus !== "premium";
 
           return (
-            <div
+            <motion.div
               key={article._id}
-              className={`card shadow-xl transition duration-300 hover:shadow-2xl ${
-                isPremium
-                  ? "border-2 border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-300 dark:from-yellow-900 dark:to-yellow-700"
-                  : "bg-base-100"
+              className={`card shadow-2xl transition duration-300 rounded-xl ${
+                isPremium ? "border-2" : "bg-base-100"
               }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0 * 0.1 }}
+              whileHover={{ scale: 1.03 }}
             >
               <figure>
                 <img
                   src={article.image}
                   alt={article.title}
-                  className="h-48 w-full object-cover rounded-t-lg"
-                  loading="lazy"
+                  className="h-48 w-full object-cover rounded-t-xl"
                 />
               </figure>
-              <div className="card-body flex flex-col">
+              <div className="card-body">
                 <h2 className="card-title">
                   {article.title}
                   {isPremium && (
-                    <span className="badge bg-yellow-500 text-white ml-2">
+                    <span className="badge badge-warning ml-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white">
                       Premium
                     </span>
                   )}
                 </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+
+                <p className="text-sm text-gray-500">
                   Publisher: {article.publisher}
                 </p>
-                <p className="line-clamp-3 flex-grow text-gray-700 dark:text-gray-300">
+
+                <p className="line-clamp-3 text-gray-700 dark:text-gray-300">
                   {article.description}
                 </p>
 
-                <div className="card-actions justify-end pt-4">
+                <p className="text-xs mt-2 text-gray-400">
+                  Published: {moment(article.createdAt).format("LL")}
+                </p>
+
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-gray-600 flex items-center gap-1">
+                    {article.views || 0} <FaEye />
+                  </p>
                   <button
-                    className={`btn btn-sm ${
-                      isButtonDisabled
-                        ? "btn-disabled cursor-not-allowed"
+                    className={`btn btn-sm btn-outline cursor-pointer ${
+                      isDisabled
+                        ? "cursor-not-allowed"
                         : "btn-primary"
                     }`}
                     onClick={() =>
-                      !isButtonDisabled &&
-                      navigate(`/article-details/${article._id}`)
+                      !isDisabled && handleDetailsClick(article._id)
                     }
-                    aria-disabled={isButtonDisabled}
+                    disabled={isDisabled}
                     title={
-                      isButtonDisabled
-                        ? "Available for premium users only"
-                        : "View article details"
+                      isDisabled
+                        ? "Only accessible by Premium users"
+                        : "View Details"
                     }
                   >
-                    {isButtonDisabled ? "Premium Only" : "Details"}
+                    {isDisabled ? "Premium Only" : "Details"}
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
