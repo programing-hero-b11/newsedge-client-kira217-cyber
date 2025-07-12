@@ -22,11 +22,13 @@ import DashboardProfile from "../pages/AdminPages/DashboardProfile/DashboardProf
 import UpdateArticle from "../pages/UpdateArticle/UpdateArticle";
 import ArticleDetails from "../pages/ArticleDetails/ArticleDetails";
 import Payment from "../components/PaymentGetway/Payment";
+import NotFound from "../pages/ErrorPage/NotFound";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainLayout,
+    errorElement: <NotFound></NotFound>,
     children: [
       {
         index: true,
@@ -118,6 +120,7 @@ export const router = createBrowserRouter([
         </AdminRoutes>
       </PrivetRoutes>
     ),
+    errorElement: <NotFound></NotFound>,
     children: [
       {
         index: true,
