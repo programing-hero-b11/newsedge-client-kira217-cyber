@@ -42,7 +42,7 @@ const Sidebar = ({ handleLogout, handleThemeToggle, theme }) => {
   ];
 
   return (
-    <aside className="w-64 bg-base-200 min-h-screen flex flex-col justify-between shadow-lg">
+    <aside className="fixed top-0 left-0 h-screen w-64 bg-base-200 min-h-screen flex flex-col justify-between shadow-lg">
       {/* Top Title and Theme Toggle */}
       <div className="p-4 border-b border-gray-300 dark:border-gray-600 flex items-center justify-between">
         <Link to='/'><h2 className="text-xl font-bold text-[#4C3AFF]">NewsEdge</h2></Link>

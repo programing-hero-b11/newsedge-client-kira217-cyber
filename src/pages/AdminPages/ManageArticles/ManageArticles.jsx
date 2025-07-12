@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { Link } from "react-router";
@@ -8,14 +8,32 @@ const ManageArticles = () => {
   const axiosSecure = useAxiosSecure();
   const [declineReason, setDeclineReason] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filteredArticles, setFilteredArticles] = useState([]);
 
-  const { data: articles = [], refetch } = useQuery({
+  const {
+    data: articles = [],
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["manageArticles"],
     queryFn: async () => {
       const { data } = await axiosSecure("/all-articles");
       return data;
     },
   });
+
+  useEffect(() => {
+    const filtered = articles
+      .filter((article) =>
+        article.title.toLowerCase().includes(search.toLowerCase())
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    setFilteredArticles(filtered);
+  }, [search, articles]);
 
   const handleApprove = async (id) => {
     const res = await axiosSecure.patch(`/articles/approve/${id}`);
@@ -48,10 +66,21 @@ const ManageArticles = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-7xl mx-auto overflow-auto">
       <h2 className="text-2xl font-bold mb-4 text-center">Manage Articles</h2>
 
-      {/* 🖥️ Table for Desktop/Tablet */}
+      {/* Search Bar */}
+      <div className="mb-4 flex justify-center">
+        <input
+          type="text"
+          placeholder="Search by title..."
+          className="input input-bordered w-full md:max-w-md"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Table for Desktop/Tablet */}
       <div className="hidden md:block overflow-x-auto">
         <table className="table w-full">
           <thead>
@@ -67,7 +96,7 @@ const ManageArticles = () => {
             </tr>
           </thead>
           <tbody>
-            {articles.map((article) => (
+            {filteredArticles.map((article) => (
               <tr key={article._id}>
                 <td className="font-bold">{article.title}</td>
                 <td>{article.author.name}</td>
@@ -123,37 +152,35 @@ const ManageArticles = () => {
         </table>
       </div>
 
-      {/* 📱 Card for Mobile */}
+      {/* Card view for Mobile */}
       <div className="md:hidden grid grid-cols-1 gap-4">
-        {articles.map((article) => (
+        {filteredArticles.map((article) => (
           <div
             key={article._id}
-            className="card shadow bg-base-200 p-4 space-y-2 rounded-xl"
+            className="card bg-base-200 shadow-md p-4 rounded-xl"
           >
-            <h3 className="text-lg font-bold">{article.title}</h3>
-            <div className="flex items-center gap-3">
+            <h3 className="font-bold text-lg">{article.title}</h3>
+            <div className="flex gap-3 items-center">
               <img
                 src={article.author.image}
-                alt="author"
                 className="w-10 h-10 rounded-full"
+                alt="author"
               />
               <div>
                 <p className="text-sm">{article.author.name}</p>
                 <p className="text-xs text-gray-500">{article.author.email}</p>
               </div>
             </div>
-            <p>
+            <p className="text-sm">
               <strong>Posted:</strong>{" "}
               {new Date(article.createdAt).toLocaleDateString()}
             </p>
-            <p>
+            <p className="text-sm">
               <strong>Publisher:</strong> {article.publisher}
             </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span className="capitalize">{article.status}</span>
+            <p className="text-sm">
+              <strong>Status:</strong> {article.status}
             </p>
-
             <div className="flex flex-wrap gap-2 mt-2">
               {article.status === "pending" && (
                 <>
