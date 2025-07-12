@@ -42,11 +42,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "all-articles",
-        element: (
-          <PrivetRoutes>
-            <AllArticles></AllArticles>
-          </PrivetRoutes>
-        ),
+        element: <AllArticles></AllArticles>,
       },
       {
         path: "subscription",

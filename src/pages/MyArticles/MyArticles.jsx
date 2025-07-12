@@ -1,4 +1,3 @@
-// MyArticles.jsx
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
@@ -10,6 +9,7 @@ const MyArticles = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [declineReason, setDeclineReason] = useState("");
 
   const {
     data: articles = [],
@@ -37,13 +37,18 @@ const MyArticles = () => {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  const handleViewReason = (reason) => {
+    setDeclineReason(reason || "No reason provided");
+    document.getElementById("reasonModal").showModal();
+  };
+
+  if (isLoading) return <p className="text-center py-10">Loading...</p>;
 
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4 text-center">My Articles</h2>
 
-      {/* Table for tablet/laptop */}
+      {/* Table for Desktop */}
       <div className="hidden lg:block overflow-auto">
         <div className="flex justify-center overflow-x-auto">
           <table className="table w-full max-w-5xl">
@@ -63,17 +68,7 @@ const MyArticles = () => {
                   <td className="font-bold">{article.title}</td>
                   <td>
                     {article.status === "declined" ? (
-                      <div>
-                        <span className="badge badge-error">Declined</span>
-                        <button
-                          className="btn btn-xs btn-link"
-                          onClick={() =>
-                            toast.info(article.reason || "No reason provided")
-                          }
-                        >
-                          View Reason
-                        </button>
-                      </div>
+                      <span className="badge badge-error">Declined</span>
                     ) : (
                       <span
                         className={`badge ${
@@ -87,19 +82,34 @@ const MyArticles = () => {
                     )}
                   </td>
                   <td>{article.articleType === "premium" ? "Yes" : "No"}</td>
-                  <td className="flex gap-2">
+                  <td className="flex gap-2 flex-wrap">
                     <Link
                       to={`/article-details/${article._id}`}
                       className="btn btn-xs btn-info"
                     >
                       Details
                     </Link>
-                    <Link
-                      to={`/update-article/${article._id}`}
-                      className="btn btn-xs btn-primary"
-                    >
-                      Update
-                    </Link>
+
+                    {/* Only show Update if not declined */}
+                    {article.status !== "declined" && (
+                      <Link
+                        to={`/update-article/${article._id}`}
+                        className="btn btn-xs btn-primary"
+                      >
+                        Update
+                      </Link>
+                    )}
+
+                    {/* If declined, show View Reason */}
+                    {article.status === "declined" && (
+                      <button
+                        className="btn btn-xs btn-warning"
+                        onClick={() => handleViewReason(article.reason)}
+                      >
+                        View Reason
+                      </button>
+                    )}
+
                     <button
                       onClick={() => setSelectedArticle(article._id)}
                       className="btn btn-xs btn-error"
@@ -114,20 +124,20 @@ const MyArticles = () => {
         </div>
       </div>
 
-      {/* Cards for mobile */}
-      <div className="lg:hidden space-y-8">
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-6">
         {articles.map((article, index) => (
           <div
             key={article._id}
-            className="card bg-base-200 p-4 shadow-md space-y-4"
+            className="card bg-base-200 p-4 shadow-md space-y-3"
           >
-            <h3 className="text-lg font-bold wrap-break-word">
+            <h3 className="text-lg font-bold">
               {index + 1}. {article.title}
             </h3>
             <p className="font-bold">
               Status:
               <span
-                className={`badge ${
+                className={`badge ml-2 ${
                   article.status === "published"
                     ? "badge-success"
                     : article.status === "declined"
@@ -137,36 +147,36 @@ const MyArticles = () => {
               >
                 {article.status}
               </span>
-              {article.status === "declined" && (
-                <button
-                  className="btn btn-xs btn-link"
-                  onClick={() =>
-                    toast.info(article.reason || "No reason provided")
-                  }
-                >
-                  View Reason
-                </button>
-              )}
             </p>
             <p className="font-bold">
               isPremium: {article.articleType === "premium" ? "Yes" : "No"}
             </p>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-wrap gap-2">
               <Link
                 to={`/article-details/${article._id}`}
-                className="btn  btn-info"
+                className="btn btn-info btn-sm"
               >
                 Details
               </Link>
-              <Link
-                to={`/update-article/${article._id}`}
-                className="btn  btn-primary"
-              >
-                Update
-              </Link>
+              {article.status !== "declined" && (
+                <Link
+                  to={`/update-article/${article._id}`}
+                  className="btn btn-primary btn-sm"
+                >
+                  Update
+                </Link>
+              )}
+              {article.status === "declined" && (
+                <button
+                  className="btn btn-warning btn-sm"
+                  onClick={() => handleViewReason(article.reason)}
+                >
+                  View Reason
+                </button>
+              )}
               <button
                 onClick={() => setSelectedArticle(article._id)}
-                className="btn  btn-error"
+                className="btn btn-error btn-sm"
               >
                 Delete
               </button>
@@ -193,6 +203,19 @@ const MyArticles = () => {
           </div>
         </dialog>
       )}
+
+      {/* Decline Reason Modal */}
+      <dialog id="reasonModal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-error">Decline Reason</h3>
+          <p className="py-4">{declineReason}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 };

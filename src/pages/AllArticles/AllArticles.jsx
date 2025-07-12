@@ -114,7 +114,7 @@ const AllArticles = () => {
             <motion.div
               key={article._id}
               className={`card shadow-2xl transition duration-300 rounded-xl ${
-                isPremium ? "border-2" : "bg-base-100"
+                isPremium ? " " : "bg-base-100"
               }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ const AllArticles = () => {
                 />
               </figure>
               <div className="card-body">
-                <h2 className="card-title">
+                <h2 className="card-title text-wrap">
                   {article.title}
                   {isPremium && (
                     <span className="badge badge-warning ml-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white">

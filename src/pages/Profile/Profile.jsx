@@ -1,16 +1,17 @@
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { imageUpload } from "../../utils/utils";
 import useAuth from "../../hooks/useAuth";
+import { imageUpload } from "../../utils/utils";
 import { toast } from "react-toastify";
 import { FaImage } from "react-icons/fa";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const Profile = () => {
   const { user, updateUser, setUser } = useAuth();
   const [dbUser, setDbUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hovering, setHovering] = useState(false);
+  const axiosSecure = useAxiosSecure();
   const {
     register,
     handleSubmit,
@@ -23,8 +24,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (userEmail) {
-      axios
-        .get(`${import.meta.env.VITE_API_URL}/users/${userEmail}`)
+      axiosSecure(`/users/${userEmail}`)
         .then((res) => {
           setDbUser(res.data);
           reset({
@@ -54,10 +54,7 @@ const Profile = () => {
 
       await updateUser({ displayName: data.name, photoURL: imageUrl });
 
-      const res = await axios.put(
-        `${import.meta.env.VITE_API_URL}/users/${userEmail}`,
-        updatedUser
-      );
+      const res = await axiosSecure.put(`/users/${userEmail}`, updatedUser);
 
       if (res.data?.modifiedCount > 0) {
         toast.success("Profile updated successfully");

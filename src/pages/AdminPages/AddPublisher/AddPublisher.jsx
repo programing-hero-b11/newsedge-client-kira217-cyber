@@ -3,6 +3,7 @@ import { imageUpload } from "../../../utils/utils";
 import { axiosSecure } from "../../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { FaFileImage } from "react-icons/fa";
 
 const AddPublisher = () => {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -79,7 +80,15 @@ const AddPublisher = () => {
         <div>
           <label className="cursor-pointer flex items-center gap-2">
             <span className="btn btn-primary w-full btn-outline">
-              {uploadedImage ? "Change Image" : "Select Photo"}
+              {uploadedImage ? (
+                <span className="flex items-center gap-2">
+                  <FaFileImage size={20} /> Change Image
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <FaFileImage /> Upload Image
+                </span>
+              )}
             </span>
             <input
               type="file"
