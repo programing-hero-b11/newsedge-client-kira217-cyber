@@ -124,7 +124,7 @@ const AddArticle = () => {
         publisher: data.publisher,
         tags: data.tags.map((tag) => tag.value),
         articleType:
-          accessInfo?.userStatus === "premium" ? "premium" : "normal",
+          accessInfo?.userStatus === "premium" ? "normal" : "normal",
         author: {
           name: user.displayName,
           email: user.email,
