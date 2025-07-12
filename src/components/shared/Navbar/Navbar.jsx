@@ -61,13 +61,6 @@ const Navbar = () => {
           </>
         )}
       </>
-      {role === "admin" && (
-        <>
-          <li>
-            <NavLink to="/dashboard">Dashboard</NavLink>
-          </li>
-        </>
-      )}
       {(userStatus === "premium" || role === "admin") && (
         <>
           <li>
@@ -75,8 +68,15 @@ const Navbar = () => {
           </li>
         </>
       )}
+      {role === "admin" && (
+        <>
+          <li>
+            <NavLink to="/dashboard">Dashboard</NavLink>
+          </li>
+        </>
+      )}
       {user?.email && (
-        <li className="md:hidden">
+        <li className="lg:hidden">
           <button onClick={handleLogout} className="flex items-center gap-2 ">
             <MdOutlineLogout />
             Logout
