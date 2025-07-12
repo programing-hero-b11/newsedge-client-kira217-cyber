@@ -1,4 +1,3 @@
-// AllArticles.jsx
 import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useNavigate } from "react-router";
@@ -14,11 +13,10 @@ const AllArticles = () => {
 
   const [articles, setArticles] = useState([]);
   const [publishers, setPublishers] = useState([]);
-  const [filters, setFilters] = useState({
-    publisher: "",
-    tags: "",
-    search: "",
-  });
+  const [filters, setFilters] = useState({ publisher: "", tags: "", search: "" });
+  const [page, setPage] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const limit = 9;
 
   useEffect(() => {
     axiosSecure.get("/publishers").then((res) => setPublishers(res.data));
@@ -30,31 +28,26 @@ const AllArticles = () => {
     if (publisher) query.append("publisher", publisher);
     if (tags) query.append("tags", tags);
     if (search) query.append("search", search);
+    query.append("page", page);
+    query.append("limit", limit);
 
     axiosSecure.get(`/articles?${query.toString()}`).then((res) => {
-      const sorted = res.data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setArticles(sorted);
+      setArticles(res.data.articles);
+      setTotalArticles(res.data.total);
     });
-  }, [filters, axiosSecure]);
+  }, [filters, page, axiosSecure]);
+
+  const totalPages = Math.ceil(totalArticles / limit);
 
   const handleSearchChange = (e) =>
-    setFilters({ ...filters, search: e.target.value });
+    setFilters({ ...filters, search: e.target.value, page: 1 });
 
   const handleDetailsClick = async (articleId) => {
-    try {
-      await axiosSecure.post(`/articles/increment-view/${articleId}`);
-      navigate(`/article-details/${articleId}`);
-    } catch (error) {
-      console.error("View count error:", error);
-    }
+    await axiosSecure.post(`/articles/increment-view/${articleId}`);
+    navigate(`/article-details/${articleId}`);
   };
 
-  if (isStatusLoading)
-    return <div className="text-center py-10">Loading...</div>;
-
-  const displayedArticles = articles;
+  if (isStatusLoading) return <div className="text-center py-10">Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -73,9 +66,7 @@ const AllArticles = () => {
         />
         <select
           className="select select-bordered w-full md:w-1/3"
-          onChange={(e) =>
-            setFilters({ ...filters, publisher: e.target.value })
-          }
+          onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}
           value={filters.publisher}
         >
           <option value="">All Publishers</option>
@@ -91,34 +82,25 @@ const AllArticles = () => {
           value={filters.tags}
         >
           <option value="">All Tags</option>
-          <option value="crime">Crime</option>
-          <option value="politics">Politics</option>
-          <option value="sports">Sports</option>
-          <option value="technology">Technology</option>
-          <option value="health">Health</option>
-          <option value="business">Business</option>
-          <option value="education">Education</option>
-          <option value="environment">Environment</option>
-          <option value="travel">Travel</option>
-          <option value="weather">Weather</option>
+          {["crime", "politics", "sports", "technology", "health", "business", "education", "environment", "travel", "weather"].map(tag => (
+            <option key={tag} value={tag}>{tag}</option>
+          ))}
         </select>
       </div>
 
-      {/* Articles */}
+      {/* Articles Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedArticles.map((article, index) => {
+        {articles.map((article) => {
           const isPremium = article.articleType === "premium";
           const isDisabled = isPremium && userStatus !== "premium";
-
           return (
             <motion.div
               key={article._id}
               className={`card shadow-2xl transition duration-300 rounded-xl ${
-                isPremium ? " " : "bg-base-100"
+                isPremium ? "" : "bg-base-100"
               }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0 * 0.1 }}
               whileHover={{ scale: 1.03 }}
             >
               <figure>
@@ -132,43 +114,26 @@ const AllArticles = () => {
                 <h2 className="card-title text-wrap">
                   {article.title}
                   {isPremium && (
-                    <span className="badge badge-warning ml-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white">
+                    <span className="badge badge-warning ml-2">
                       Premium
                     </span>
                   )}
                 </h2>
-
-                <p className="text-sm text-gray-500">
-                  Publisher: {article.publisher}
-                </p>
-
-                <p className="line-clamp-3 text-gray-700 dark:text-gray-300">
-                  {article.description}
-                </p>
-
-                <p className="text-xs mt-2 text-gray-400">
+                <p className="text-sm text-gray-500">Publisher: {article.publisher}</p>
+                <p className="line-clamp-3">{article.description}</p>
+                <p className="text-xs text-gray-400 mt-2">
                   Published: {moment(article.createdAt).format("LL")}
                 </p>
-
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-gray-600 flex items-center gap-1">
+                <div className="flex justify-between items-center mt-4">
+                  <p className="text-sm flex items-center gap-1">
                     {article.views || 0} <FaEye />
                   </p>
                   <button
-                    className={`btn btn-sm btn-outline cursor-pointer ${
-                      isDisabled
-                        ? "cursor-not-allowed"
-                        : "btn-primary"
+                    className={`btn ${
+                      isDisabled ? "btn-disabled" : "btn-primary btn-outline"
                     }`}
-                    onClick={() =>
-                      !isDisabled && handleDetailsClick(article._id)
-                    }
                     disabled={isDisabled}
-                    title={
-                      isDisabled
-                        ? "Only accessible by Premium users"
-                        : "View Details"
-                    }
+                    onClick={() => !isDisabled && handleDetailsClick(article._id)}
                   >
                     {isDisabled ? "Premium Only" : "Details"}
                   </button>
@@ -177,6 +142,19 @@ const AllArticles = () => {
             </motion.div>
           );
         })}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-8 flex-wrap gap-2">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+          <button
+            key={pg}
+            className={`btn btn-sm ${pg === page ? "btn-active" : "btn-outline"}`}
+            onClick={() => setPage(pg)}
+          >
+            {pg}
+          </button>
+        ))}
       </div>
     </div>
   );
