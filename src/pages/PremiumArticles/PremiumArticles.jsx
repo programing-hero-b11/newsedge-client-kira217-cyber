@@ -1,4 +1,3 @@
-// PremiumArticles.jsx
 import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useNavigate } from "react-router";
@@ -13,15 +12,18 @@ const PremiumArticles = () => {
   const [userStatus, isStatusLoading] = useStatus();
 
   const [articles, setArticles] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const limit = 9;
 
   useEffect(() => {
-    axiosSecure.get("/articles?type=premium").then((res) => {
-      const sorted = res.data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setArticles(sorted);
-    });
-  }, [axiosSecure]);
+    axiosSecure
+      .get(`/articles/premium?page=${page}&limit=${limit}`)
+      .then((res) => {
+        setArticles(res.data.articles);
+        setTotal(res.data.total);
+      });
+  }, [axiosSecure, page]);
 
   const handleDetailsClick = async (articleId) => {
     try {
@@ -34,6 +36,8 @@ const PremiumArticles = () => {
 
   if (isStatusLoading)
     return <div className="text-center py-10">Loading...</div>;
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -64,7 +68,7 @@ const PremiumArticles = () => {
               <div className="card-body">
                 <h2 className="card-title text-wrap">
                   {article.title}
-                  <span className="badge badge-warning ml-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white">
+                  <span className="badge badge-warning ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
                     Premium
                   </span>
                 </h2>
@@ -98,6 +102,21 @@ const PremiumArticles = () => {
             </motion.div>
           );
         })}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-8 flex-wrap gap-2">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+          <button
+            key={pg}
+            className={`btn btn-sm ${
+              pg === page ? "btn-active" : "btn-outline"
+            }`}
+            onClick={() => setPage(pg)}
+          >
+            {pg}
+          </button>
+        ))}
       </div>
     </div>
   );
