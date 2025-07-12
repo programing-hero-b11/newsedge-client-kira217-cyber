@@ -114,7 +114,7 @@ const AllArticles = () => {
                 <h2 className="card-title text-wrap">
                   {article.title}
                   {isPremium && (
-                    <span className="badge badge-warning ml-2">
+                    <span className="badge badge-warning ml-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
                       Premium
                     </span>
                   )}
