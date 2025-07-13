@@ -92,7 +92,11 @@ const Navbar = () => {
   if (isRoleLoading) return <Loading></Loading>;
 
   return (
-    <div className="sticky top-0 z-50">
+    <div
+      className={`fixed top-0 left-0 w-full z-50 shadow ${
+        theme === "light" ? "bg-white" : "bg-[#1D232A] text-white"
+      }`}
+    >
       <div className="drawer drawer-end">
         <input id="nav-drawer" type="checkbox" className="drawer-toggle" />
         <div className="navbar max-w-7xl mx-auto px-4">

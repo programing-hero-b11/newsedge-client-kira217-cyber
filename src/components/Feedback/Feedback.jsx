@@ -8,14 +8,14 @@ export const Feedback = () => {
         {/* Step Text Section */}
         <div className="grid gap-6 md:grid-cols-2 md:col-span-2 lg:col-span-3">
           {/* Step 1 */}
-          <div className="rounded lg:p-5 lg:transition lg:duration-300 lg:hover:bg-indigo-50">
+          <div className="rounded lg:p-5 lg:transition lg:duration-300">
             <div className="flex items-center mb-1">
               <span className="flex items-center justify-center w-4 h-4 mr-2 text-xs font-medium text-white rounded bg-purple-600">
                 1
               </span>
               <p className="text-lg font-semibold sm:text-base">Our Mission</p>
             </div>
-            <p className="text-sm text-gray-900">
+            <p className="text-sm">
               At <strong>NewsEdge</strong>, we strive to deliver fast, unbiased,
               and accurate news that matters. From politics to entertainment—we
               bring everything under one digital roof.
@@ -23,7 +23,7 @@ export const Feedback = () => {
           </div>
 
           {/* Step 2 */}
-          <div className="rounded lg:p-5 lg:transition lg:duration-300 lg:hover:bg-teal-50">
+          <div className="rounded lg:p-5 lg:transition lg:duration-300 ">
             <div className="flex items-center mb-1">
               <span className="flex items-center justify-center w-4 h-4 mr-2 text-xs font-medium text-white rounded bg-teal-500">
                 2
@@ -32,7 +32,7 @@ export const Feedback = () => {
                 Latest Articles
               </p>
             </div>
-            <p className="text-sm text-gray-900">
+            <p className="text-sm">
               Stay updated with real-time trending articles. From breaking
               headlines to deep-dive reports—we ensure you don’t miss what’s
               shaping the world today.
@@ -40,7 +40,7 @@ export const Feedback = () => {
           </div>
 
           {/* Step 3 */}
-          <div className="rounded lg:p-5 lg:transition lg:duration-300 lg:hover:bg-teal-50">
+          <div className="rounded lg:p-5 lg:transition lg:duration-300 ">
             <div className="flex items-center mb-1">
               <span className="flex items-center justify-center w-4 h-4 mr-2 text-xs font-medium text-white rounded bg-purple-600">
                 3
@@ -49,7 +49,7 @@ export const Feedback = () => {
                 Verified Sources
               </p>
             </div>
-            <p className="text-sm text-gray-900">
+            <p className="text-sm">
               Every article is backed by verified sources. Our editorial team
               cross-checks facts and relies on authentic data to maintain
               journalistic integrity.
@@ -57,7 +57,7 @@ export const Feedback = () => {
           </div>
 
           {/* Step 4 */}
-          <div className="rounded lg:p-5 lg:transition lg:duration-300 lg:hover:bg-indigo-50">
+          <div className="rounded lg:p-5 lg:transition lg:duration-300">
             <div className="flex items-center mb-1">
               <span className="flex items-center justify-center w-4 h-4 mr-2 text-xs font-medium text-white rounded bg-teal-500">
                 4
@@ -66,7 +66,7 @@ export const Feedback = () => {
                 Meet the Team
               </p>
             </div>
-            <p className="text-sm text-gray-900">
+            <p className="text-sm">
               Our newsroom is powered by a diverse team of journalists,
               analysts, and content creators who are committed to transparency,
               truth, and timely reporting.
