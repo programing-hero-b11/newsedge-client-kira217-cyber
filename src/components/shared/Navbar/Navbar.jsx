@@ -46,15 +46,15 @@ const Navbar = () => {
       <li>
         <NavLink to="/all-articles">All Articles</NavLink>
       </li>
+      <li>
+        <NavLink to="/add-article">Add Articles</NavLink>
+      </li>
+      <li>
+        <NavLink to="/subscription">Subscription</NavLink>
+      </li>
       <>
         {user && (
           <>
-            <li>
-              <NavLink to="/add-article">Add Articles</NavLink>
-            </li>
-            <li>
-              <NavLink to="/subscription">Subscription</NavLink>
-            </li>
             <li>
               <NavLink to="/my-articles">My Articles</NavLink>
             </li>

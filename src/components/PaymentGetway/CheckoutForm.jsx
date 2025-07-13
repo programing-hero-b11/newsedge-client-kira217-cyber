@@ -6,6 +6,7 @@ import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router";
 import "./CheckoutForm.css";
 import useStatus from "../../hooks/useStatus";
+import Swal from "sweetalert2";
 
 const CheckoutForm = ({ selected }) => {
   const stripe = useStripe();
@@ -13,7 +14,7 @@ const CheckoutForm = ({ selected }) => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [ refetch ] = useStatus();
+  const [refetch] = useStatus();
 
   const [clientSecret, setClientSecret] = useState("");
   const [isDark, setIsDark] = useState(false);
@@ -92,11 +93,13 @@ const CheckoutForm = ({ selected }) => {
         amount: selected.price,
         duration: selected.value,
       };
-
       const res = await axiosSecure.post("/payments", paymentInfo);
       if (res.data?.updateUser?.modifiedCount > 0) {
-        toast.success("Payment Successful! You are now a Premium user.");
-
+        Swal.fire({
+          title: "Good job Now you are Premium User",
+          text: "You can Access all Premium Things",
+          icon: "success",
+        });
         navigate("/premium-articles");
         refetch();
       }
