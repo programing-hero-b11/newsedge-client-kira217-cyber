@@ -5,8 +5,8 @@ import useAuth from "./useAuth";
 import { auth } from "../firebase/firebase.config";
 
 export const axiosSecure = axios.create({
-  baseURL: `https://newsedge-server.vercel.app`,
-  withCredentials: true, // for cookies, CORS
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, 
 });
 
 const useAxiosSecure = () => {
@@ -29,7 +29,7 @@ const useAxiosSecure = () => {
     const responseInterceptor = axiosSecure.interceptors.response.use(
       (res) => res,
       async (error) => {
-        console.error("Axios Interceptor Error:", error.response);
+        console.error("Axios Interceptor Error:", error);
         if (error.response?.status === 401 || error.response?.status === 403) {
           await logOut();
           navigate("/login");

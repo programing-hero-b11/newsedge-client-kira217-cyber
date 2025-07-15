@@ -31,7 +31,7 @@ const AllArticles = () => {
     query.append("page", page);
     query.append("limit", limit);
 
-    axiosSecure.get(`/articles?${query.toString()}`).then((res) => {
+    axiosSecure(`/articles?${query.toString()}`).then((res) => {
       setArticles(res.data.articles);
       setTotalArticles(res.data.total);
     });

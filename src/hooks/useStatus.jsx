@@ -15,7 +15,7 @@ const useStatus = () => {
     queryKey: ["userStatus", user?.email],
     enabled: !loading && !!user?.email,
     queryFn: async () => {
-      const { data } = await axiosSecure(`/user/userStatus/${user?.email}`);
+      const { data } = await axiosSecure.get(`/user/userStatus/${user?.email}`);
       return data;
     },
   });
