@@ -14,7 +14,6 @@ const CheckoutForm = ({ selected }) => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [refetch] = useStatus();
 
   const [clientSecret, setClientSecret] = useState("");
   const [isDark, setIsDark] = useState(false);
@@ -89,19 +88,26 @@ const CheckoutForm = ({ selected }) => {
 
     if (paymentIntent.status === "succeeded") {
       const paymentInfo = {
+        name: user.displayName || "Unknown",
         email: user.email,
         amount: selected.price,
         duration: selected.value,
+        transactionId: paymentIntent.id,
       };
-      const res = await axiosSecure.post("/payments", paymentInfo);
-      if (res.data?.updateUser?.modifiedCount > 0) {
-        Swal.fire({
-          title: "Good job Now you are Premium User",
-          text: "You can Access all Premium Things",
-          icon: "success",
-        });
-        navigate("/premium-articles");
-        refetch();
+
+      try {
+        const res = await axiosSecure.post("/payments", paymentInfo);
+
+        if (res.data?.updateUser?.modifiedCount > 0) {
+          Swal.fire({
+            title: "Good job! Now you're a Premium User 🎉",
+            text: "You now have access to all premium features!",
+            icon: "success",
+          });
+          navigate("/premium-articles");
+        }
+      } catch (err) {
+        console.error("Payment Save Error:", err);
       }
     }
   };

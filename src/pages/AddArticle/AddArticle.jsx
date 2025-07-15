@@ -166,7 +166,7 @@ const AddArticle = () => {
   if (!isAllowed) return null;
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
+    <div className="max-w-3xl mx-auto p-4 mt-20">
       <h2 className="text-2xl font-bold mb-4 text-center">
         Submit New Article
       </h2>

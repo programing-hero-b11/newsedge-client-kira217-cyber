@@ -23,7 +23,7 @@ const Slider = () => {
   ];
 
   return (
-    <div className="relative w-full h-[80vh]">
+    <div className="relative w-full h-[80vh] mt-14">
       <Swiper
         modules={[Autoplay, Pagination, EffectFade]}
         autoplay={{ delay: 5000, disableOnInteraction: false }}

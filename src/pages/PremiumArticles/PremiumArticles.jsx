@@ -40,7 +40,7 @@ const PremiumArticles = () => {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4 py-6 mt-20">
       <h1 className="text-3xl font-bold mb-6 text-center md:text-left">
         Premium Articles
       </h1>

@@ -45,7 +45,7 @@ const MyArticles = () => {
   if (isLoading) return <p className="text-center py-10">Loading...</p>;
 
   return (
-    <div className="p-4">
+    <div className="p-4 mt-20">
       <h2 className="text-2xl font-bold mb-4 text-center">My Articles</h2>
 
       {/* Table for Desktop */}
