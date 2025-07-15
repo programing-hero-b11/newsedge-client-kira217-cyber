@@ -9,6 +9,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import { motion } from "framer-motion";
 import moment from "moment";
@@ -26,7 +27,7 @@ const Statistics = () => {
 
   useEffect(() => {
     axiosSecure.get("/admin/statistics").then((res) => setStats(res.data));
-    axiosSecure.get("/admin/chart-daily").then((res) => setChartData(res.data));
+    axiosSecure.get("/admin/chart-data").then((res) => setChartData(res.data));
     axiosSecure
       .get("/admin/payment-history")
       .then((res) => setPayments(res.data));
@@ -47,7 +48,7 @@ const Statistics = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <h2 className="text-3xl font-bold text-center mb-8">
-        📊 Admin Statistics
+        📊 Statistics
       </h2>
 
       {/* Top Cards */}
@@ -65,7 +66,7 @@ const Statistics = () => {
           },
           {
             title: "Today's Earning",
-            icon: <FaCommentDollar size={30}/>,
+            icon: <FaCommentDollar size={30} />,
             value: stats.totalEarnings,
           },
           {
@@ -100,10 +101,20 @@ const Statistics = () => {
         </h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
-            <XAxis dataKey="date" />
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" fontSize={12} angle={-45} textAnchor="end" />
             <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
+            <Tooltip
+              contentStyle={{ backgroundColor: "#f9fafb", borderRadius: "8px" }}
+              labelStyle={{ fontWeight: "bold" }}
+              formatter={(value) => [`${value} articles`, "Total"]}
+            />
+            <Bar
+              dataKey="articles"
+              fill="#6366f1"
+              radius={[6, 6, 0, 0]}
+              barSize={30}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

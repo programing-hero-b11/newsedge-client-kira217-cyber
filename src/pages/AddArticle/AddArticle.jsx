@@ -9,11 +9,12 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { FaFileImage } from "react-icons/fa";
-import Loading from "../../components/shared/Loading/Loading"
+import Loading from "../../components/shared/Loading/Loading";
 import dayjs from "dayjs";
 
 const AddArticle = () => {
   const { user, themeController } = useAuth();
+  console.log(user.email)
   const { register, handleSubmit, control, reset } = useForm();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const AddArticle = () => {
   const [isAllowed, setIsAllowed] = useState(false);
   const [accessInfo, setAccessInfo] = useState(null);
 
-  // ✅ Load publishers
+  // Load publishers
   const { data: publishers = [] } = useQuery({
     queryKey: ["publishers"],
     queryFn: async () => {
@@ -34,7 +35,7 @@ const AddArticle = () => {
     },
   });
 
-  // ✅ Tag options
+  // Tags options
   const tagsOptions = [
     { value: "politics", label: "Politics" },
     { value: "sports", label: "Sports" },
@@ -49,7 +50,6 @@ const AddArticle = () => {
     { value: "weather", label: "Weather" },
   ];
 
-  // ✅ React Select Theme Styles
   const customStyles = (theme) => ({
     control: (provided) => ({
       ...provided,
@@ -77,7 +77,7 @@ const AddArticle = () => {
     }),
   });
 
-  // ✅ Access check on mount
+  // Check access on component mount
   useEffect(() => {
     const checkAccess = async () => {
       if (user?.email) {
@@ -92,7 +92,7 @@ const AddArticle = () => {
             Swal.fire({
               icon: "info",
               title: "Access Denied",
-              text: "Normal users add article only one time and Premium users with active subscription can add articles.",
+              text: "Normal users can only post once. Upgrade to premium for unlimited posts.",
               confirmButtonText: "Go to Subscription",
             }).then((result) => {
               if (result.isConfirmed) {
@@ -102,6 +102,11 @@ const AddArticle = () => {
           }
         } catch (err) {
           console.error("Access check failed:", err);
+          Swal.fire(
+            "Error",
+            "Something went wrong while checking access.",
+            "error"
+          );
         } finally {
           setLoadingAccess(false);
         }
@@ -111,7 +116,7 @@ const AddArticle = () => {
     checkAccess();
   }, [user, axiosSecure, navigate]);
 
-  // ✅ Submit
+  // Submit form
   const onSubmit = async (data) => {
     if (!isAllowed) return;
 
@@ -123,8 +128,7 @@ const AddArticle = () => {
         description: data.description,
         publisher: data.publisher,
         tags: data.tags.map((tag) => tag.value),
-        articleType:
-          accessInfo?.userStatus === "premium" ? "normal" : "normal",
+        articleType: "normal",
         author: {
           name: user.displayName,
           email: user.email,
@@ -134,6 +138,7 @@ const AddArticle = () => {
       };
 
       const res = await axiosSecure.post("/articles", articleData);
+
       if (res.data.insertedId) {
         toast.success("Article submitted for review!");
         navigate("/my-articles");
@@ -141,13 +146,29 @@ const AddArticle = () => {
         setUploadedImage(null);
       }
     } catch (err) {
-      toast.error("Failed to submit article.");
+      // Handle 403 error from server (limit reached)
+      if (err.response?.status === 403) {
+        Swal.fire({
+          icon: "warning",
+          title: "Limit Reached",
+          text:
+            err.response?.data?.error ||
+            "Normal users can post only one article. Upgrade to premium.",
+          confirmButtonText: "Go to Subscription",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/subscription");
+          }
+        });
+      } else {
+        toast.error("Failed to submit article.");
+      }
     } finally {
       setUploading(false);
     }
   };
 
-  // ✅ Image Upload
+  // Image upload handler
   const handleImageUpload = async (e) => {
     const image = e.target.files[0];
     try {
@@ -160,9 +181,7 @@ const AddArticle = () => {
     }
   };
 
-  // ✅ UI while checking permission
-  if (loadingAccess)
-    return <Loading></Loading>
+  if (loadingAccess) return <Loading />;
   if (!isAllowed) return null;
 
   return (
@@ -181,7 +200,6 @@ const AddArticle = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Title */}
         <input
           type="text"
           {...register("title", { required: true })}
@@ -189,7 +207,6 @@ const AddArticle = () => {
           className="input input-bordered w-full"
         />
 
-        {/* Image Upload */}
         <label className="cursor-pointer flex items-center gap-2">
           <span className="btn btn-primary w-full btn-outline">
             {uploadedImage ? (
@@ -226,7 +243,6 @@ const AddArticle = () => {
           </p>
         )}
 
-        {/* Publisher Select */}
         <select
           {...register("publisher", { required: true })}
           className="select select-bordered w-full"
@@ -239,7 +255,6 @@ const AddArticle = () => {
           ))}
         </select>
 
-        {/* Tags */}
         <Controller
           name="tags"
           control={control}
@@ -256,14 +271,12 @@ const AddArticle = () => {
           )}
         />
 
-        {/* Description */}
         <textarea
           {...register("description", { required: true })}
           className="textarea textarea-bordered w-full h-60"
           placeholder="Article Description"
         ></textarea>
 
-        {/* Submit */}
         <button
           className="btn btn-primary btn-outline w-full"
           disabled={uploading}

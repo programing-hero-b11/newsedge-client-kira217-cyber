@@ -92,7 +92,7 @@ const PremiumArticles = () => {
                   <button
                     className="btn btn-primary btn-outline cursor-pointer"
                     onClick={() =>
-                      isDisabled && handleDetailsClick(article._id)
+                      !isDisabled && handleDetailsClick(article._id)
                     }
                   >
                     Details
