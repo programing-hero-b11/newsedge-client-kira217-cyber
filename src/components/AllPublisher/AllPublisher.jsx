@@ -22,11 +22,15 @@ const allPublisher = [
     name: "CNBC",
     logo: "https://i.ibb.co/LX0Wp6fT/w-CA2dt-Ubkmmo-UBCHkv-H26-Y.jpg",
   },
+  {
+    name: "NHK World – Japan",
+    logo: "https://i.ibb.co/hx2FWPx7/NHK-World-svg.png",
+  },
 ];
 
 const AllPublisher = () => {
   return (
-    <section className="py-12">
+    <section className="max-w-7xl mx-auto mt-10">
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-3xl md:text-4xl font-bold text-center mb-10 text-primary"
@@ -37,7 +41,7 @@ const AllPublisher = () => {
           All Publisher
         </motion.h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allPublisher.map((publisher, index) => (
             <motion.div
               key={index}
@@ -50,9 +54,7 @@ const AllPublisher = () => {
               <div className="text-[#2563EB] mb-3 flex justify-center">
                 <img className="w-20 h-20" src={publisher.logo} alt="" />
               </div>
-              <h3 className="text-lg font-semibold">
-                {publisher.name}
-              </h3>
+              <h3 className="text-lg font-semibold">{publisher.name}</h3>
             </motion.div>
           ))}
         </div>

@@ -13,7 +13,7 @@ const headlines = [
 
 const NewsTicker = () => {
   return (
-    <div className="news-ticker-container py-2 overflow-hidden max-w-7xl mx-auto">
+    <div className="news-ticker-container py-2 overflow-hidden max-w-7xl mx-auto mt-10">
       <div className="ticker-wrapper flex items-center gap-4">
         <div className="flex items-center gap-2 font-bold px-4 text-primary text-lg">
           <FaBolt />

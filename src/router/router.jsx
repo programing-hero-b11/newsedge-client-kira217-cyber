@@ -23,6 +23,7 @@ import UpdateArticle from "../pages/UpdateArticle/UpdateArticle";
 import ArticleDetails from "../pages/ArticleDetails/ArticleDetails";
 import Payment from "../components/PaymentGetway/Payment";
 import NotFound from "../pages/ErrorPage/NotFound";
+import PaymentHistory from "../pages/PaymentHistory/PaymentHistory";
 
 export const router = createBrowserRouter([
   {
@@ -59,6 +60,14 @@ export const router = createBrowserRouter([
         element: (
           <PrivetRoutes>
             <MyArticles></MyArticles>
+          </PrivetRoutes>
+        ),
+      },
+      {
+        path: "payment-history",
+        element: (
+          <PrivetRoutes>
+            <PaymentHistory></PaymentHistory>
           </PrivetRoutes>
         ),
       },

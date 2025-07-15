@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { FaMoon, FaSun } from "react-icons/fa";
+import { BiUserCircle, BiCreditCard } from "react-icons/bi"
 import { MdOutlineLogout } from "react-icons/md";
 import "./Navbar.css";
 import useAuth from "../../../hooks/useAuth";
@@ -129,13 +130,47 @@ const Navbar = () => {
 
             {user?.email && (
               <>
-                <Link to="/profile" title="My Profile">
-                  <img
-                    src={user?.photoURL}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full border-2 border-[#4C3AFF]"
-                  />
-                </Link>
+                <div className="dropdown dropdown-end">
+                  {/* Profile Image Button */}
+                  <div
+                    tabIndex={0}
+                    role="button"
+                    className="btn btn-ghost btn-circle avatar"
+                  >
+                    <div className="w-8 h-8 rounded-full border-2 border-[#4C3AFF] overflow-hidden">
+                      <img
+                        src={user?.photoURL}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dropdown Content */}
+                  <ul
+                    tabIndex={0}
+                    className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-56"
+                  >
+                    <li>
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-2 hover:bg-gray-100 px-2 py-2 rounded-md transition"
+                      >
+                        <BiUserCircle className="text-lg" />
+                        <span>Profile</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/payment-history"
+                        className="flex items-center gap-2 hover:bg-gray-100 px-2 py-2 rounded-md transition"
+                      >
+                        <BiCreditCard className="text-lg" />
+                        <span>Payment History</span>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
                 <button
                   onClick={handleLogout}
                   className="hidden hover:cursor-pointer lg:flex items-center gap-1 text-[#4C3AFF]"
