@@ -28,6 +28,7 @@ const PaymentHistory = () => {
               <th className="py-3 px-4 text-left">Name</th>
               <th className="py-3 px-4 text-left">Email</th>
               <th className="py-3 px-4 text-left">Transaction ID</th>
+              <th className="py-3 px-4 text-left">Amount</th>
               <th className="py-3 px-4 text-left">Paid At</th>
             </tr>
           </thead>
@@ -37,6 +38,7 @@ const PaymentHistory = () => {
                 <td className="py-3 px-4">{payment.name || "N/A"}</td>
                 <td className="py-3 px-4">{payment.email}</td>
                 <td className="py-3 px-4">{payment.transactionId}</td>
+                <td className="py-3 px-4">$ {payment.amount}</td>
                 <td className="py-3 px-4">
                   {moment(payment.paidAt).format("LLL")}
                 </td>
@@ -49,10 +51,7 @@ const PaymentHistory = () => {
       {/* ✅ Mobile View: Card Format */}
       <div className="lg:hidden grid gap-4">
         {payments.map((payment, idx) => (
-          <div
-            key={idx}
-            className="border rounded-lg shadow-md p-4 space-y-2"
-          >
+          <div key={idx} className="border rounded-lg shadow-md p-4 space-y-2">
             <p>
               <strong>Name:</strong> {payment.name || "N/A"}
             </p>
@@ -61,6 +60,9 @@ const PaymentHistory = () => {
             </p>
             <p>
               <strong>Transaction ID:</strong> {payment.transactionId}
+            </p>
+            <p>
+              <strong>Amount:</strong> $ {payment.amount}
             </p>
             <p>
               <strong>Paid At:</strong> {moment(payment.paidAt).format("LLL")}
