@@ -5,7 +5,7 @@ import useAuth from "./useAuth";
 import { auth } from "../firebase/firebase.config";
 
 export const axiosSecure = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: `https://newsedge-server.vercel.app`,
   withCredentials: true, // for cookies, CORS
 });
 
