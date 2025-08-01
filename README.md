@@ -71,6 +71,10 @@ Whether you're a reader or a publisher, **NewsEdge** delivers a dynamic and resp
 - Delete Articles
 - Make Articles Premium
 
+### Admin Email & Password
+-Email: hablu@12gmail.com
+-Password: 1234Hb@
+
 ### 📈 User Dashboard
 - View personal articles
 - Edit or delete own articles
