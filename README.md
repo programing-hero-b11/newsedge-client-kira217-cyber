@@ -14,7 +14,7 @@ Whether you're a reader or a publisher, **NewsEdge** delivers a dynamic and resp
 
 ## 🖼️ Screenshot
 
-![NewsEdge Screenshot](https://ibb.co/gMPN2Bzz)
+![NewsEdge Screenshot](https://i.ibb.co/hRZb6tDD/2.png)
 <!-- Replace with your actual screenshot if different -->
 
 ---
